@@ -9,7 +9,7 @@
 # The result will be saved in a CSV file.
 require "csv"
 
-rows = cols = values = 0
+rows = cols = values = runs = 0
 path = ""
 
 loop do
@@ -40,6 +40,13 @@ loop do
 end
 
 loop do
+  puts "Number of times to run the distribution?"
+  runs = gets.chomp.to_i
+  break if runs > 0
+  puts "Invalid number of runs, sorry."
+end
+
+loop do
   puts "Where should I save the result?"
   path = gets.chomp
 
@@ -55,9 +62,13 @@ loop do
 end
 
 # Create a 2D array filled with nils to store the result.
-result = []
-rows.times do
-  result << Array.new(cols)
+results = []
+runs.times do
+  r = []
+  rows.times do
+    r << Array.new(cols)
+  end
+  results << r
 end
 
 # For each value, choose a cell at random. If it's empty,
@@ -65,15 +76,17 @@ end
 # cell randomly until an empty one is found.
 #
 # Repeat until all values have been distributed.
-values.times do |i|
-  ((rows * cols) / values).times do
-    loop do
-      row = Random.rand(rows)
-      col = Random.rand(cols)
+results.each do |r|
+  values.times do |i|
+    ((rows * cols) / values).times do
+      loop do
+        row = Random.rand(rows)
+        col = Random.rand(cols)
 
-      if result[row][col].nil?
-        result[row][col] = i+1
-        break
+        if r[row][col].nil?
+          r[row][col] = i+1
+          break
+        end
       end
     end
   end
@@ -81,7 +94,10 @@ end
 
 # Write the result to a CSV file.
 CSV.open(path, "wb") do |csv|
-  result.each do |row|
-    csv << row
+  results.each_with_index do |r, i|
+    r.each do |row|
+      csv << row
+    end
+    csv << [] unless i >= runs - 1
   end
 end

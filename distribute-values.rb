@@ -94,10 +94,10 @@ end
 
 # Write the result to a CSV file.
 CSV.open(path, "wb") do |csv|
-  results.each do |r|
+  results.each_with_index do |r, i|
     r.each do |row|
       csv << row
     end
-    csv << []
+    csv << [] unless i >= runs - 1
   end
 end
